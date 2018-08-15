@@ -853,11 +853,11 @@ int main(int argc, char *argv[]){
 	// cout << desFile << endl;
 
 	if(option == "-e"){
-		cout << "encode\n";
+		//cout << "encode\n";
 		HuffmanEncoder en(sourFile, desFile);
-		cout << "No??\n";
+		//cout << "No??\n";
 		en.buildTree();
-		cout << "start to encode----------\n";
+		//cout << "start to encode----------\n";
 		en.encoder();
 
 
