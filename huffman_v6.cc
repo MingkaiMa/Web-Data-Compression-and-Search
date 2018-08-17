@@ -412,6 +412,16 @@ public:
 
 		unsigned char* readBuffer = new unsigned char[blockSize];
 
+
+
+		int writeBlockSize = 4096000;
+		//int stringSize = 5000000;
+
+		unsigned char* writeBuffer = new unsigned char[writeBlockSize];
+
+		int writeIndex = 0;
+
+
 		while(fromFile.read((char*)(&readBuffer[0]), blockSize)){
 
 			auto currPos = fromFile.tellg();
@@ -421,40 +431,72 @@ public:
 				endFlag = true;
 				for(int i = 0; i < blockSize - 1; ++i){
 					unsigned char currChar = readBuffer[i];
-					bitset<8> nowBits(currChar);
-					string nowBitString = nowBits.to_string();
-					for(auto& c: nowBitString){
-						if(c == '0')
-							currNode = currNode->left;
 
-						else if(c == '1')
+					int bitCount = 0;
+
+					while(bitCount < 8){
+
+						if(((currChar >> (7 - bitCount)) & 1) == 1){
 							currNode = currNode->right;
+						}
+						else{
+							currNode = currNode->left;
+						}
 
 						if(currNode->left == nullptr && currNode->right == nullptr){
-							toFile << currNode->data;
+
+							writeBuffer[writeIndex] = currNode->data;
+							++writeIndex;
+
+							if(writeIndex == writeBlockSize){
+								toFile.write((char*)(&writeBuffer[0]), writeBlockSize);
+								writeIndex = 0;
+							}
+
+							//toFile << currNode->data;
 							currNode = root;
 						}
+
+						++bitCount;
 					}
 
 				}
 
 				unsigned char lastByte = readBuffer[blockSize - 1];
-				bitset<8> nowBits(lastByte);
-				string llastByte = nowBits.to_string();
-				for(int i = 0; i < (8 - compliNb); ++i){
-					char ch = llastByte[i];
 
-					if(ch == '0')
-						currNode = currNode->left;
+				int bitCount = 0;
 
-					else if(ch == '1')
+				while(bitCount < (8 - compliNb)){
+
+					if(((lastByte >> (7 - bitCount)) & 1) == 1){
 						currNode = currNode->right;
+					}
+					else{
+						currNode = currNode->left;
+					}
+
 
 					if(currNode->left == nullptr && currNode->right == nullptr){
-						toFile << currNode->data;
+
+						writeBuffer[writeIndex] = currNode->data;
+						++writeIndex;
+
+						if(writeIndex == writeBlockSize){
+							toFile.write((char*)(&writeBuffer[0]), writeBlockSize);
+							writeIndex = 0;
+						}
+
+						//toFile << currNode->data;
 						currNode = root;
 					}
+
+					++bitCount;
+
 				}
+
+				toFile.write((char*)(&writeBuffer[0]), writeIndex);
+
+
 			}
 
 			else{
@@ -462,20 +504,37 @@ public:
 
 				for(int i = 0; i < blockSize; ++i){
 					unsigned char currChar = readBuffer[i];
-					bitset<8> nowBits(currChar);
-					string nowBitString = nowBits.to_string();
-					for(auto& c: nowBitString){
-						if(c == '0')
-							currNode = currNode->left;
 
-						else if(c == '1')
+
+
+					int bitCount = 0;
+
+					while(bitCount < 8){
+
+						if(((currChar >> (7 - bitCount)) & 1) == 1){
 							currNode = currNode->right;
+						}
+						else{
+							currNode = currNode->left;
+						}
 
 						if(currNode->left == nullptr && currNode->right == nullptr){
-							toFile << currNode->data;
+
+							writeBuffer[writeIndex] = currNode->data;
+							++writeIndex;
+
+							if(writeIndex == writeBlockSize){
+								toFile.write((char*)(&writeBuffer[0]), writeBlockSize);
+								writeIndex = 0;
+							}
+
+							//toFile << currNode->data;
 							currNode = root;
 						}
+
+						++bitCount;
 					}
+
 				}
 			}
 		}
@@ -487,43 +546,78 @@ public:
 			for(int i = 0; i < (remainNb - 1); ++i){
 
 				unsigned char currChar = readBuffer[i];
-				bitset<8> nowBits(currChar);
-				string nowBitString = nowBits.to_string();
-				for(auto& c: nowBitString){
-					if(c == '0')
-						currNode = currNode->left;
 
-					else if(c == '1')
+				int bitCount = 0;
+
+				while(bitCount < 8){
+
+					if(((currChar >> (7 - bitCount)) & 1) == 1){
 						currNode = currNode->right;
+					}
+					else{
+						currNode = currNode->left;
+					}
 
 					if(currNode->left == nullptr && currNode->right == nullptr){
-						toFile << currNode->data;
+
+						writeBuffer[writeIndex] = currNode->data;
+						++writeIndex;
+
+						if(writeIndex == writeBlockSize){
+							toFile.write((char*)(&writeBuffer[0]), writeBlockSize);
+							writeIndex = 0;
+						}
+
+						//toFile << currNode->data;
 						currNode = root;
 					}
+
+					++bitCount;
 				}
+
+
+
 			}
 
 			unsigned char lastByte2 = readBuffer[remainNb - 1];
-			bitset<8> nowBits(lastByte2);
-			string lastByte = nowBits.to_string();
-			for(int i = 0; i < (8 - compliNb); ++i){
-				char ch = lastByte[i];
 
-				if(ch == '0')
-					currNode = currNode->left;
 
-				else if(ch == '1')
+			int bitCount = 0;
+			while(bitCount < (8 - compliNb)){
+
+				if(((lastByte2 >> (7 - bitCount)) & 1) == 1){
 					currNode = currNode->right;
+				}
+				else{
+					currNode = currNode->left;
+				}
+
 
 				if(currNode->left == nullptr && currNode->right == nullptr){
-					toFile << currNode->data;
+
+					writeBuffer[writeIndex] = currNode->data;
+					++writeIndex;
+
+					if(writeIndex == writeBlockSize){
+						toFile.write((char*)(&writeBuffer[0]), writeBlockSize);
+						writeIndex = 0;
+					}
+
+					//toFile << currNode->data;
 					currNode = root;
 				}
+
+				++bitCount;
+
 			}
+
+			toFile.write((char*)(&writeBuffer[0]), writeIndex);
+
 
 		}
 
 		delete[] readBuffer;
+		delete[] writeBuffer;
 		toFile.close();
 		fromFile.close();
 	}
@@ -704,42 +798,55 @@ public:
 				endFlag = true;
 				for(int i = 0; i < blockSize - 1; ++i){
 					unsigned char currChar = readBuffer[i];
-					bitset<8> nowBits(currChar);
-					string nowBitString = nowBits.to_string();
-					for(auto& c: nowBitString){
-						if(c == '0')
-							currNode = currNode->left;
 
-						else if(c == '1')
+					int bitCount = 0;
+
+					while(bitCount < 8){
+
+						if(((currChar >> (7 - bitCount)) & 1) == 1){
 							currNode = currNode->right;
+						}
+						else{
+							currNode = currNode->left;
+						}
 
 						if(currNode->left == nullptr && currNode->right == nullptr){
 
 							nowAllS.push_back(currNode->data);
 							currNode = root;
 						}
+
+						++bitCount;
 					}
+
 
 				}
 
 				unsigned char lastByte = readBuffer[blockSize - 1];
-				bitset<8> nowBits(lastByte);
-				string llastByte = nowBits.to_string();
-				for(int i = 0; i < (8 - compliNb); ++i){
-					char ch = llastByte[i];
 
-					if(ch == '0')
-						currNode = currNode->left;
+				int bitCount = 0;
 
-					else if(ch == '1')
+				while(bitCount < (8 - compliNb)){
+
+					if(((lastByte >> (7 - bitCount)) & 1) == 1){
 						currNode = currNode->right;
+					}
+					else{
+						currNode = currNode->left;
+					}
+
 
 					if(currNode->left == nullptr && currNode->right == nullptr){
+
 
 						nowAllS.push_back(currNode->data);
 						currNode = root;
 					}
+
+					++bitCount;
+
 				}
+
 
 
 				searchInfoNode* node = kmpSearch(nowAllS, Pattern, T);
@@ -751,20 +858,27 @@ public:
 
 				for(int i = 0; i < blockSize; ++i){
 					unsigned char currChar = readBuffer[i];
-					bitset<8> nowBits(currChar);
-					string nowBitString = nowBits.to_string();
-					for(auto& c: nowBitString){
-						if(c == '0')
-							currNode = currNode->left;
 
-						else if(c == '1')
+					int bitCount = 0;
+
+					while(bitCount < 8){
+
+						if(((currChar >> (7 - bitCount)) & 1) == 1){
 							currNode = currNode->right;
+						}
+						else{
+							currNode = currNode->left;
+						}
 
 						if(currNode->left == nullptr && currNode->right == nullptr){
+
 							nowAllS.push_back(currNode->data);
 							currNode = root;
 						}
+
+						++bitCount;
 					}
+
 
 					searchInfoNode* node = kmpSearch(nowAllS, Pattern, T);
 
@@ -784,42 +898,53 @@ public:
 			for(int i = 0; i < (remainNb - 1); ++i){
 
 				unsigned char currChar = readBuffer[i];
-				bitset<8> nowBits(currChar);
 
-				string nowBitString = nowBits.to_string();
-				for(auto& c: nowBitString){
-					if(c == '0')
-						currNode = currNode->left;
+				int bitCount = 0;
 
-					else if(c == '1')
+				while(bitCount < 8){
+
+					if(((currChar >> (7 - bitCount)) & 1) == 1){
 						currNode = currNode->right;
+					}
+					else{
+						currNode = currNode->left;
+					}
 
 					if(currNode->left == nullptr && currNode->right == nullptr){
+
 						nowAllS.push_back(currNode->data);
 						currNode = root;
 					}
+
+					++bitCount;
 				}
+
 
 			}
 
 			unsigned char lastByte2 = readBuffer[remainNb - 1];
-			bitset<8> nowBits(lastByte2);
-			string lastByte = nowBits.to_string();
-			for(int i = 0; i < (8 - compliNb); ++i){
-				char ch = lastByte[i];
 
-				if(ch == '0')
-					currNode = currNode->left;
+			int bitCount = 0;
+			while(bitCount < (8 - compliNb)){
 
-				else if(ch == '1')
+				if(((lastByte2 >> (7 - bitCount)) & 1) == 1){
 					currNode = currNode->right;
+				}
+				else{
+					currNode = currNode->left;
+				}
+
 
 				if(currNode->left == nullptr && currNode->right == nullptr){
-					//toFile << currNode->data;
+
 					nowAllS.push_back(currNode->data);
 					currNode = root;
 				}
+
+				++bitCount;
+
 			}
+
 
 
 			searchInfoNode* node = kmpSearch(nowAllS, Pattern, T);
@@ -829,7 +954,6 @@ public:
 		}
 
 		delete[] readBuffer;
-
 		fromFile.close();
 		return res;
 	}
