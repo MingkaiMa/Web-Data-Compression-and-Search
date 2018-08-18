@@ -267,11 +267,6 @@ public:
 
 		}
 
-		cout << tmepCount << endl;
-
-		cout << writeIndex << endl;
-		cout << bitCount << endl;
-		cout << headBytesCnt << endl;
 		toFile.write((char*)(&writeBuffer[0]), writeIndex);
 
 
